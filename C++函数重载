@@ -1,0 +1,40 @@
+//函数重载(形参的类型，顺序，个数不同)
+//对返回值没有要求，只是返回值不同不能构成重载
+int ADD(int left, int right)
+{
+	return left + right;
+}
+double ADD(double left, double right)
+{
+	return left + right;
+}
+char ADD(char right, char left)
+{
+	return left + right;
+}
+double ADD(int left, double right)
+{
+	return left + right;
+}
+int main()
+{
+	cout << ADD(1,2) << endl;
+	cout << ADD(1.1, 2.2) << endl;
+	cout << ADD(1, 1.11);
+	return 0;
+}
+
+//预处理  头文件展开/宏替换/条件编译/去掉注释
+//编译    检查语法，生成汇编代码
+//汇编    汇编代码转成二进制机器码
+//链接    将两个目标文件链接在一起，生成可执行程序
+
+//C++支持重载原因是链接时，C语言直接找函数名，C++函数名后面还有参数的符号
+//因为C++函数名修饰规则
+
+
+//只缺省参数不能构成重载，只有类型顺序个数不同才行
+
+
+
+//extern “C” 要求C语言和C++都可以用C++的静态库或动态库，让C++按C的修饰规则找文件
