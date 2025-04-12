@@ -1,0 +1,36 @@
+#include<iostream>
+using namespace std;
+//using std::cout;
+//using std::cin;
+//using std::endl;
+
+
+#include<iostream>
+using namespace std;
+using std::cout;
+using std::cin;
+using std::endl;
+
+
+//缺省参数
+//从左往右缺省，从右往左传参
+void Func(int x, int y = 20, int q = 30)
+{
+	cout << x << " " << y << " " << q << endl;
+
+}
+
+int main()
+{
+	int a = 1;
+	double b = 1.11;
+	int z = 0;
+	int x = 0, y = 0, q = 0;
+	cout << a << " " << b << endl;
+	cin >> z;
+	cout << z << endl;
+	Func(11);
+	Func(11,12);
+	Func(11,12,13);
+	return 0;
+}
