@@ -1,0 +1,156 @@
+#include<iostream>
+using namespace std;
+
+void Func1()
+{
+	int a = 0;
+	cout << "a=" << a << endl;
+	int& ra = a;
+	cout << "ra=" << ra << endl;
+	int& b = ra;
+	cout << "b=" << b << endl;
+	b = 2;
+	cout << "a=" << a << " " << "b=" << b << endl;
+
+}
+void Func2()
+{
+	int a = 1;
+	int& b = a;
+	const int& c = b;
+	cout << "a=" << a << endl;
+	cout << "c=" << c << endl;
+	//引用取别名时，权限可缩小，不能放大
+	//const是可读的，不可写
+}
+void Func3()
+{
+	int i = 0;
+	double b = i;//隐士类型转换
+	//  double& db = i;   这样不行
+	const double& db = i;//这样可以
+
+	//隐式类型转换中，会产生double类型的临时变量，再将临时变量赋给b
+	//临时变量就有常性，即可读不可写，所以不能赋值给doule类型
+	//而加了const就变成了只可读
+	//赋值没有权限的缩小和放大，引用才有，引用操作的是同一块空间
+}
+
+//权限缩小和放大适用于引用和指针 
+void func4()
+{
+	//权限放大不行，const只能赋给const，不能赋给非const
+	const int a = 1;
+	const int& b = a;
+	int x = a;
+	//int& y = a;//不行
+	//非const都可以
+	int c = 2;
+	const int& d = c;
+	const int& e = c;
+}
+void Func5()
+{
+	const int a = 10;
+	//int* cp1 = &a;//权限放大，不行
+	const int* cp2 = &a;
+	cout << *cp2 << endl;
+
+	int b = 20;
+	int* p1 = &b;
+	const int* p2 = &b;//可以,权限缩小
+	cout << *p2 << endl;
+}
+
+//&在变量前面是取地址，类型后面是引用
+//引用做参数
+//传参有三种方式，传值（会开辟一块空间放形参），传指针，传引用（不开辟新空间）
+void swap_c(int* p1, int* p2)
+{
+	int tmp = *p1;
+	*p1 = *p2;
+	*p2 = tmp;
+}
+void swap_cpp(int& r1, int& r2)//r1和r2分别变成a，b的别名，不在同一个栈，但在同一个进程中；这里是引用
+{
+	int tmp = r1;
+	r1 = r2;
+	r2 = tmp;
+}
+
+//引用做返回值
+//返回类型分为，传值返回和传引用返回
+int Count1()
+{
+	static int n;
+	return n;//此时会生成一个临时变量，将n传给临时变量，再用临时变量返回
+			//可认为int tmp = n;
+}
+int& Count2()
+{
+	static int n;
+	return n;//此时返回的是n的别名，不开新空间
+			//可认为int& tmp = n;
+}
+
+
+//上面函数中没有static是不行的
+/*
+int Add1(int a, int b)
+{
+	int c = a + b;
+	return c;
+}
+int main()
+{
+	const int ret = Add1(1,2);
+	Add1(3, 4);
+	cout << "Add1(1,2) is :" << ret << endl;
+	return 0;
+}
+
+
+int& Add2(int a, int b)
+{
+	int c = a + b;
+	return c;
+}
+int& Add3(int a, int b)
+{
+	static int c = a + b;//加了static后，c就不在栈帧中而在数据段中了，栈销毁而数据段还在
+	return c;
+}
+int main()
+{
+	int& ret = Add2(1, 2);
+	cout << ret << endl;
+	Add2(3, 4);//此时原函数空间释放后被覆盖，返回随机值
+	cout << "Add2(1,2) is :" << ret << endl;
+	return 0;
+} 
+*/
+//上面说明如果返回变量是局部变量时，引用返回是不安全的
+//函数返回后自动销毁，空间的使用权被释放，空间还在，这时候访问这个空间不能保证还是原来的值
+
+//总结：一个函数要使用引用返回，返回变量出了作用域必须还存在，才可以使用，否则不安全
+//函数使用引用返回的好处是：少创建一个临时变量，提高效率，传引用也可以提高效率，提高程序效率不是系统效率
+
+
+int main()
+{
+	//func1();
+	//func2();
+	Func5();
+
+	int a = 0, b = 1;
+	swap_c(&a, &b);//在c语言中不加&，会将值传过去，并不改变地址;这里是取地址
+	swap_cpp(a, b);
+
+	//int& r1 = count1();   //这里编译不通过，因为返回的是临时变量，临时变量具有常性，加const
+	const int& r1 = Count1();
+	int& r2 = Count2();
+
+	return 0;
+}
+//总结：传值，都会产生拷贝传引用不会
+//static修饰的是生命周期，对类型没有影响；而const影响的是修改权限
