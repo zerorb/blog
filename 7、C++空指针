@@ -1,0 +1,23 @@
+#include<iostresam>
+using namespace std;
+//空指针
+void func(int n)
+{
+	cout << "整形" << endl;
+}
+void func(int* p)
+{
+	cout << "整形指针" << endl;
+}
+int main()
+{
+	//C语言指针赋空
+	int* p1 = NULL;
+	//C++推荐
+	int* p2 = nullptr;
+	
+	func(0);//整形
+	func(NULL);//整形,原因是C++中宏   #define NULL 0  预处理后func(0)
+	func(nullptr);//整形指针，预处理后func((void*)0)
+	return 0;
+}
