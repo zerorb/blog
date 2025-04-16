@@ -1,0 +1,28 @@
+//auto
+//auto不能作参数，不能做数组
+int main()
+{
+	auto x = 1, y = 2;
+	//auto x = 1,y = 1.11;这个不行
+
+	int a = 0;
+	auto b = a;//auto 自动推导类型
+	auto& c = a;
+	int& d = a;
+	auto* e = &a;
+	auto f = &a;
+	
+	cout << typeid(a).name() << endl;
+	cout << typeid(b).name() << endl;
+	cout << typeid(c).name() << endl;
+	cout << typeid(d).name() << endl;//指针
+	cout << typeid(e).name() << endl;
+	cout << typeid(f).name() << endl;//指针
+
+	//auto的真正用法
+	//std::map<std::string, std::string> dict;
+	//std::map<std::string, std::string>::iterator it1 = dict.begin();
+	//auto it2 = dict.begin();//使用auto进行优化
+
+	return 0;
+}
