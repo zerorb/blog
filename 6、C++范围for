@@ -1,0 +1,38 @@
+#include<iostream>
+using namespace std;
+
+//这里编译不通过
+void TestFor(int array[])//数组传参后会退化成指针
+{
+	for (auto& e : array)//用范围for必须是数组
+	{
+		cout << e << " ";
+	}
+}
+
+int main()
+{
+	//将数组中的值乘2再打印一遍
+	// C语言
+	int array[] = { 1,2,3,4,5,6 };
+	for (int i = 0; i < sizeof(array) / sizeof(int); i++)
+	{
+		array[i] *= 2;
+	}
+	for (int i = 0; i < sizeof(array) / sizeof(int); i++)
+	{
+		cout << array[i] << " ";
+	}
+	cout << endl;
+
+	//C++中 范围for 语法糖 非常简洁	
+	for (auto& e : array)//把数组里面的值依次给e
+	{
+		e *= 2;
+	}
+	for (auto& e : array)
+	{
+		cout << e << " ";
+	}
+	return 0;
+}
