@@ -1,0 +1,32 @@
+#include<iostream>
+using namespace std;
+#define N 10    //宏 C++ 里面用 const int N = 10;  替代宏    用inline替代宏函数
+
+
+inline void Swap(int& x,int& y)
+{
+	int tmp = x;
+	x = y;
+	y = tmp;
+
+}
+int main()
+{
+	int a = 1;
+	int b = 2;
+	Swap(a, b);
+	return 0;
+}
+
+//内联函数
+//频繁调用函数需要反复建立栈帧，是有消耗的
+//C语言用宏函数解决（不能调试，可读性较差），C++用内联函数(inline,他会展开函数)
+//inline 在debug下面是不会展开的,debug默认不优化
+//在release下面会展开，但在release下面没办法看汇编（没展开会有Call Swap，即Call+函数名）
+//如何让debug展开：
+//1、在解决方案的文件右键属性选择C\C++，常规，调试信息格式改成程序数据库
+//2、优化，内联函数扩展，默认改成只适用于inline
+//内联适用于小函数，递归或长的都不适用（空间换时间的做法：用更多的空间换取没有函数开销）
+//内敛只是建议，代码较长或递归，自动不采用内联
+
+//内联函数不能声明和定义分开，因为内联没有地址，他被展开了，会链接不上
