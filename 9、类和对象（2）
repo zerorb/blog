@@ -1,0 +1,135 @@
+#include<iostream>
+using namespace std;
+
+//封装
+//1、把数据和方法放到定义一起
+//2、把公开和隐私分开，隐私封装起来(访问限定符)
+class Stack
+{
+public:
+	//成员变量
+	//成员函数
+	void Push(int x)              //在类里面定义
+	{
+
+	}
+	void Pop();                  //在类外面定义
+	bool Empty();                //声明
+private:
+	int* _a;
+	size_t size;
+	size_t capacity;
+};
+void Stack::Pop()
+{
+
+}
+
+
+//C语言中struct用来定义结构体
+//C++中，兼容C的用法，同时struct也可以用来定义类
+//C++用使用class和struct定义类的区别是默认的访问限定符(公有私有)
+struct ListNode_C
+{
+	int _val;
+	struct ListNode_C* _next;
+	struct ListNode_c* _prev;
+};
+struct ListNode_CPP
+{
+	int _val;
+	ListNode_CPP* _next;//ListNode_CPP*就是类型，不用加struct
+	ListNode_CPP* _prev;
+
+	//还可以定义函数，即成员变量
+};
+
+
+//类名就是类的类型
+class A1
+{
+public:
+	void PrintA()
+	{
+		cout << _a << endl;
+	}
+	void Show()
+	{
+		cout << "Show()" << endl;
+	}
+private:
+	int _a;
+};
+
+class Date
+{
+public:
+	void Init(int year,int month,int day)
+	//void Init(Date* this,int year, int month ,int day)
+	{
+		//this->_year = year;  默认加this
+		_year = year;//加_表示成员变量
+		_month = month;
+		_day = day;
+	}
+	//为什么Print能访问private里的成员变量
+	//void Print(Date* this)  隐含的this指针；访问限定符不阻止访问类内对象
+	//类像房子，访问限定符像锁，锁只防房子外的人，房内不防
+	void Print()
+	{
+		cout << _year << "-" << _month << "-" << _day << endl;
+		cout << this->_year << "-" << this->_month << "-" << this->_day << endl;
+		//隐含的this指针，编译器的处理
+	}
+private:
+	int _year;
+	int _month;
+	int _day;
+};
+
+
+//声明：事情没做，是一种承诺。定义：落实承诺
+int main()
+{
+	//类的实例化出对象(类的定义),用自己定义的类型定义对象
+	Stack s1;
+	Stack s2;
+	Stack s3;
+	s1.Push(1);
+	s2.Push(2);
+	s3.Push(3);
+
+
+	//对象中只存储成员变量，不存储成员函数，函数是通过this指针拿的，函数指针都是一样大的
+	cout << sizeof(s1) << endl;//12，3个int
+	//原因是：一个类实例化出N个对象，每个对象都可以存储不同的值，但是调用的函数确是同一个
+	//如果每个对象都放成员函数，而这些成员函数都是一样的，浪费空间
+
+	//如何计算出一个类实例化出的对象的大小，成员变量之和，并且考虑内存对齐规则
+	//没有成员变量的类大小是1，开1个字节不是为了存数据，是为了占位，表示存在，确保定义时可以访问到地址
+
+	//每个成员变量都有一个对齐数，对齐数=min(自身大小，默认对齐数)     总大小是最大对齐数的整数倍
+
+
+	A1 li;
+	A1 lii;
+
+	Date d1;
+	d1.Init(2025, 4, 16);//d1.Init(&d1,2025,4,16)
+	d1.Print();//调用时会被编译成d1.Print(&d1)  谁调用就会把谁的地址传给this指针
+	
+
+	//this指针存在哪里？（进程地址空间的哪个区域？）    存在栈上的，因为他是函数的一个形参
+	//（ps：vs下是存在ecx这个寄存器，来传递）
+	A1* p = NULL;
+	//下面分别会引发什么，编译不通过？程序崩溃？正常运行？
+	p->PrintA();//崩溃         p->PrintA(p)
+	p->Show();//正常运行
+	//成员函数存在公共代码段，所以p->Show()这里不回去p指向的对象去找
+	//访问成员函数，回去解引用，空指针指向this，会崩
+
+	return 0;
+}
+
+
+//硬件存储体系：寄存器，缓存(三级存储体系L1，L2，L3)，内存，硬盘(机械硬盘/SSD)，远程网络存储(云)
