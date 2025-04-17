@@ -1,0 +1,93 @@
+#include<iostream>
+using namespace std;
+
+
+//C++ 是面向对象的语言
+//类的引入
+//C语言中结构体里只能定义变量，C++中结构体里不仅可以定义变量还可以定义函数
+//C++中用class代替struct定义类
+//
+//类中可以定义两类：1、成员变量   2、成员方法(函数)
+//分离：在项目中声明放头文件teat.h   定义放实现文件test.cpp中（#include test.h）
+//封装：共有public  私有private  保护protected
+
+
+class Person
+{
+	void Print()//定义在类里面的默认为内联函数
+	{
+
+	}
+
+	//int _name;
+	//char _num;
+};
+
+class Student
+{
+public:
+	void PrintPersonInfor();
+	void ShowInfo()
+	{
+		cout << _name << endl;
+		cout << _age << endl;
+	}
+	int GetAge()
+	{
+		return _age;
+	}
+private:    //一般情况下成员变量都是比较隐私的，定义成私或保护
+	char _name[20];
+	int _age;
+	int _stuid;
+	//...
+};
+void Student::PrintPersonInfor()//在类外定义，必须指定属于哪个类::
+{
+	cout << _name << _age << endl;
+}
+//class默认私有，struct默认公有
+//面向对象的三大特性：封装、继承、多态
+
+class Stack
+{
+public:
+	void INit(size_t n)  //栈初始化
+	{
+		//...
+	}
+	void Destory()
+	{
+
+	}
+	void Push(int x)
+	{
+
+	}
+	void Pop()
+	{
+
+	}
+//protected:   //目前私有和保护一样
+private:
+	int* _a;
+	size_t _top;
+	size_t _capacity;
+};
+
+int main()
+{
+	Stack st;
+	st.INit(10);
+	st.Push(1);
+
+
+	Student s1;
+	Student s2;
+	//s1._name = "peter";//私有不能在类外面直接访问
+	//s1._age = 12;
+	//s1._stuid = 1;
+	s1.ShowInfo();
+
+	return 0;
+}
