@@ -1,0 +1,77 @@
+#inlcude<iostream>
+using namespace std;
+
+
+
+//拷贝构造，唯一的问题点在于不要递归调用拷贝构造，即在拷贝构造传参时，传引用
+//拷贝构造属于函数重载
+
+class Date
+{
+public:
+	Date(int year = 0,int month = 1,int day = 1)
+	{
+		_year = year;
+		_month = month;
+		_day = day;
+	}
+/*	Date(Date d)            //递归的拷贝构造，调用之前先传参，把d1传给d，变成Date d(d1),再反复调用此构造函数
+	{
+		_year = d._year;
+		_month = d._month;
+		_day = d._day;
+	}
+*/
+	//为了防止递归拷贝构造
+	//Date() == Date(Date* this)   -> Date(Date& d) == Date(Date&* this)    -》 d == this
+	//this指向的是d2的对象，意味着把d1传给形参d，d成了d1的别名，d._year == d1._year
+	//加上const是防止写反，只读，写反了不能赋值
+	Date(const Date& d)       //d是d1的别名	
+	{
+		_year = d._year;// == d2.this->_year = d1.this->_year;
+		_month = d._month;
+		_day = d._day;
+
+		cout << "进入了拷贝构造" << endl;
+	}
+	void Print()
+	{
+		cout << _year << "_" << _month << "-" << _day << endl;
+	}
+private:
+	int _year;
+	int _month;
+	int _day;
+};
+
+
+//void func(Date d)
+//{
+//	//这里传参是传值，会先调d1的拷贝构造(因为类里面的拷贝构造是传引用，所以没无限递归调用),这里也建议传引用
+//}
+void func(Date& d)   
+{
+	//这里是传引用，直接进入这个函数，不会调拷贝构造
+}
+
+
+int main()
+{
+	Date d1(2025,4,17);
+	Date d2(d1);
+	//拷贝构造函数，调用函数要先传参，若传参的过程又是一个拷贝构造，就变成了递归拷贝构造，死循环，自己不断调自己
+	Date d3 = d1;//这也是拷贝构造
+	d2.Print();
+	d3.Print();
+
+	func(d1);
+
+	return 0;
+}
+
+
+//拷贝构造
+//Date d1(1,2,3);
+//Date d2(d1);        传参时会根据函数重载找到参数数量类型顺序与实参对应的构造函数(这里称为拷贝构造函数)
+//Date(Date d)        传值      因为d1已经被定义过了，而Date d没被定义，这样就形成了Date d(d1),再进入拷贝构造函数无限循环
+//Date(Date& d)       传引用    这里形参d变成了实参d1的别名，Date(d1),只需要把函数中d换成d1就可以
