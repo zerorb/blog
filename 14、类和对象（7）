@@ -1,0 +1,345 @@
+#include<iostream>
+using namespace std;
+
+//实现一个完善的日期类（练习运算符重载），了解深浅拷贝
+class Date
+{
+public:
+	
+	int GetMonthDay(int year,int month)
+	{
+		//防止每次调用都创建数组，写成静态的
+		static int MonthDay[13] = { 0,31,28,31,30,31,30,31,31,30,31,30,31 };
+		if (year == 2 && (year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+		{
+			return 29;
+		}
+		else
+			return MonthDay[month];
+	}
+	Date(int year = 0, int month = 1, int day = 1)
+	{
+		if (year >= 0
+			&& month > 0 && month <= 12
+			&& day >= 1 && day <= GetMonthDay(year, month))
+		{
+			_year = year;
+			_month = month;
+			_day = day;
+		}
+		else
+			cout << "非法日期" << endl;//后面会返回异常，这里先不写
+	}
+	~Date()
+	{
+
+	}
+	Date(const Date& d)
+	{
+		_year = d._year;
+		_month = d._month;
+		_day = d._day;
+	}
+	Date& operator=(const Date& d)   //这里引用返回是为了减少一层拷贝,且为了支持连续赋值
+	{
+		if (this != &d)     //防止自己给自己赋值
+		{
+			_year = d._year;
+			_month = d._month;
+			_day = d._day;
+		}
+		return *this;       //*this出了作用域还在,d1 = d2 = d3,先d2=d3,将d2的别名返回,再用d2的别名给d1赋值
+	}
+	void Print()
+	{
+		cout << _year << " " << _month << " " << _day << endl;
+	}
+	bool operator==(const Date& d)
+	{
+		return _year == d._year && _month == d._month && _day == d._day;
+	}
+	bool operator<(const Date& d)
+	{
+		if (_year < d._year)
+		{
+			return true;
+		}
+		else if (_year == d._year && _month < d._month)
+		{
+			return true;
+		}
+		else if (_year == d._year && _month == d._month && _day < d._day)
+		{
+			return true;      //小于等于只差了_day<=_d._day    改成<=只需将最后改成_day<=d._day即可
+		}
+		return false;
+	}
+	//复用,好处是当再加入成员变量时,只需要改变上面两个就好了	
+	//软件工程提倡低耦合高内聚(耦合:类和类之间关系越小越好 内聚:类内越紧密越好)  耦合:后面更多指的是模块间的关系
+	bool operator<=(const Date& d) //(Date* this,const Date& d)   &d1传this   d2传d
+	{
+		return *this < d || *this == d;     //this指向d1，*this就是d1
+	}
+	bool operator>(const Date& d)
+	{
+		return !(*this <= d);      //~物理取反     !逻辑取反
+	}
+	bool operator>=(const Date& d)
+	{
+		return !(*this < d);
+	}
+	bool operator!=(const Date& d)
+	{
+		return !(*this == d);
+	}
+
+	//d1+10     d1+100    d1+1000
+/*	Date operator+(int day)
+	{
+		Date ret(*this);
+		ret._day += day;
+		while (ret._day > GetMonthDay(ret._year, ret._month))
+		{
+			ret._day -= GetMonthDay(ret._year, ret._month);
+			ret._month++;
+			if (ret._month > 12)
+			{
+				ret._year++;
+				ret._month = 1;
+			}
+		}
+		return ret;    //这里返回的是ret临时变量,出了作用域就不在了,所以函数类型不能用引用
+		//传引用返回变量出了作用域必须还在,否则不安全,这里ret除了作用域被销毁,一般要加static, 才可以传引用
+	}
+*/
+	Date& operator+=(int day)
+	{
+		if (day < 0)
+		{
+			return *this -= -day; 
+		}
+		_day += day;
+		while (_day > GetMonthDay(_year, _month))
+		{
+			_day -= GetMonthDay(_year, _month);
+			_month++;
+			if (_month == 13)
+			{
+				++_year;
+				_month = 1;
+			}
+		}
+		return *this;      //*this是d1  返回的是*this的别名(d1的别名)    传引用返回,返回时不创造中间变量,提高效率
+	}
+	Date operator+(int day)       //复用实现
+	{
+		Date ret = *this;
+		ret += day;
+		return ret;
+	}
+
+
+/*	Date operator-(int day)
+	{
+		Date ret = *this;
+		while (ret._day - day < 1)
+		{
+			--ret._month;
+			if (0 == ret._month)
+			{
+				--ret._year;
+				ret._month = 12;
+			}
+			ret._day += GetMonthDay(ret._year, ret._month);
+		}
+		ret._day -= day;
+		return ret;
+	}
+*/
+	Date& operator-=(int day)
+	{
+		if (day < 0)
+		{
+			return *this += -day;
+		}
+		while (_day - day < 1)    //(this->_day - day < 0)
+		{
+			--_month;
+			if (_month < 1)
+			{
+				--_year;
+				_month = 12;
+			}
+			_day += GetMonthDay(_year, _month);
+		}
+		_day -= day;
+		return *this;
+	}
+	Date operator-(int day)    //复用实现
+	{
+		Date ret = *this;
+		ret -= day;
+		return ret;
+	}
+/*
+	Date& operator--(int)
+	{
+		if (!--_day)
+		{
+			--_month;
+			_day = GetMonthDay(_year, _month);
+		}
+		return *this;
+	}
+	Date& operator++(int)
+	{
+		if (++_day > GetMonthDay(_year, _month))
+		{
+			++_month;
+			_day = 1;
+		}
+		return *this;
+	}
+*/
+
+	Date& operator++()        //前置++
+	{
+		*this += 1;
+		return *this;
+	}
+	Date& operator--()        //前--
+	{
+		*this -= 1;
+		return *this;
+	}
+	Date operator++(int)      //后置++,为了构成重载,强行加了(int)
+	{
+		Date tmp = *this;
+		*this += 1;
+		return tmp;        //返回加之前的
+	}
+	Date operator--(int)       //后置--
+	{
+		Date tmp = *this;
+		*this -= 1;
+		return tmp;
+	}
+	int operator-(const Date & d)
+	{
+		int flag = 1;
+		Date max = *this;
+		Date min = d;
+		if (*this < d)
+		{
+			max = d;    //operator=
+			min = *this;
+			flag = -1;
+		}
+		int n = 0;
+		while (max != min)
+		{
+			++min;
+			++n;
+		}
+		return *this>d?n:-n;     //return flag*n;
+	}
+
+private:
+	int _year;
+	int _month;
+	int _day;
+};
+
+class Stack
+{
+public:
+	Stack(int n = 10)
+	{
+		_a = (int*)malloc(sizeof(int) * n);
+		_size = 0;
+		_capacity = n;
+	}
+	~Stack()
+	{
+		if (_a)
+		{
+			free(_a);
+			_a = nullptr;
+			_size = _capacity = 0;
+		}
+	}
+	//一般构造必须写,析构看情况,赋值拷贝看情况(Date不用,栈必须写)
+private:
+	int* _a;
+	int _size;
+	int _capacity;
+};
+
+int main()
+{
+	Date d1;
+	d1.Print();
+	Date d2(2025, 4, 20);
+	d2.Print();
+	Date d3(2025, 2, 30);//这里是非法日期，年月日没赋值Print是一堆地址
+	d3.Print();
+
+	cout << (d1 < d2) << endl;
+	cout << (d1 > d2) << endl;
+	cout << (d1 == d2) << endl;
+	cout << (d1 != d2) << endl;
+	cout << (d1 <= d2) << endl;
+	cout << (d1 >= d2) << endl;
+
+	//要重载运算符,看的是这个运算符对这个类的对象是否有意义
+	Date d4 = d1 + 100;
+	d4.Print();
+	Date d5(2003, 10, 21);
+	Date d6(2005, 10, 17);
+	d5 += 10;    //d1 = d1 + 10;
+	d5 - 10;
+	d5 -= 10;
+	++d5;        //d5.operator(&5,0)
+	--d5;
+	d5++;
+	d5--;
+	//d5 - d6;
+
+
+	Date d7(2025,4,20);
+	d7 += -100;
+	d7.Print(); 
+
+	Date d8(2026, 4, 20);
+	Date d9(2027, 4, 20);
+	int x = d9 - d8;
+	int y = d8 - d9;
+	cout << x << " " << y << endl;
+
+
+	d1 = d3;   //赋值运算符重载,和拷贝构造很像,拷贝构造是初始化时用的,初始化后用赋值
+	int i = 1, j = 2, k = 3;
+	i = j = k;     //自定义类型可以连续赋值,k=j返回值为j
+
+
+	//这里崩了,浅拷贝问题       自己写深拷贝才不会崩
+	//Stack st1;
+	//Stack st2(st1);    //这里拷贝会将两个指针都指向st1,因为浅拷贝,而插入时,都向st1插入
+						//析构时,st2先析构free(st2._a)  st1析构free(st1._a),指向同一块空间被析构了两次,所以崩了
+	//Stack st3(30);     
+	//st1 = st3;       //同理 这里也析构两次,依然崩溃
+	return 0;
+}
+
+
+//运算符重载是为了让自定义类型像内置类型一样使用运算符
+//即便不写赋值构造和拷贝构造,仍然可以使用赋值构造和拷贝构造,因为他们是默认成员函数
+//对于拷贝构造和operator=自己不写时,编译会完成按字节的值拷贝(浅拷贝)
+//浅拷贝:将对象按字节一个一个拷贝过去
+//例如:
+//_year   <-    year     4个字节
+//_month  <-    month    4个字节
+//_day    <-    day      4个字节
+//顺序表  链表  队列 等等都存在深浅拷贝问题
+
+
