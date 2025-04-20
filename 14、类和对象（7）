@@ -2,11 +2,14 @@
 using namespace std;
 
 //实现一个完善的日期类（练习运算符重载），了解深浅拷贝
+//只要成员函数中不直接或间接修改成员变量，建议都加上const,因为这样const和非const都可以调用（除了会报错的都加上）
+//写类，一般声明和定义分离
+
 class Date
 {
 public:
 	
-	int GetMonthDay(int year,int month)
+	int GetMonthDay(int year,int month) const
 	{
 		//防止每次调用都创建数组，写成静态的
 		static int MonthDay[13] = { 0,31,28,31,30,31,30,31,31,30,31,30,31 };
@@ -50,15 +53,15 @@ public:
 		}
 		return *this;       //*this出了作用域还在,d1 = d2 = d3,先d2=d3,将d2的别名返回,再用d2的别名给d1赋值
 	}
-	void Print()
+	void Print() const
 	{
 		cout << _year << " " << _month << " " << _day << endl;
 	}
-	bool operator==(const Date& d)
+	bool operator==(const Date& d) const
 	{
 		return _year == d._year && _month == d._month && _day == d._day;
 	}
-	bool operator<(const Date& d)
+	bool operator<(const Date& d) const
 	{
 		if (_year < d._year)
 		{
@@ -76,25 +79,25 @@ public:
 	}
 	//复用,好处是当再加入成员变量时,只需要改变上面两个就好了	
 	//软件工程提倡低耦合高内聚(耦合:类和类之间关系越小越好 内聚:类内越紧密越好)  耦合:后面更多指的是模块间的关系
-	bool operator<=(const Date& d) //(Date* this,const Date& d)   &d1传this   d2传d
+	bool operator<=(const Date& d) const  //(Date* this,const Date& d)   &d1传this   d2传d
 	{
 		return *this < d || *this == d;     //this指向d1，*this就是d1
 	}
-	bool operator>(const Date& d)
+	bool operator>(const Date& d) const
 	{
 		return !(*this <= d);      //~物理取反     !逻辑取反
 	}
-	bool operator>=(const Date& d)
+	bool operator>=(const Date& d) const
 	{
 		return !(*this < d);
 	}
-	bool operator!=(const Date& d)
+	bool operator!=(const Date& d) const
 	{
 		return !(*this == d);
 	}
 
 	//d1+10     d1+100    d1+1000
-/*	Date operator+(int day)
+/*	Date operator+(int day) const
 	{
 		Date ret(*this);
 		ret._day += day;
@@ -131,7 +134,7 @@ public:
 		}
 		return *this;      //*this是d1  返回的是*this的别名(d1的别名)    传引用返回,返回时不创造中间变量,提高效率
 	}
-	Date operator+(int day)       //复用实现
+	Date operator+(int day)  const     //复用实现
 	{
 		Date ret = *this;
 		ret += day;
@@ -139,7 +142,7 @@ public:
 	}
 
 
-/*	Date operator-(int day)
+/*	Date operator-(int day) const
 	{
 		Date ret = *this;
 		while (ret._day - day < 1)
@@ -175,7 +178,7 @@ public:
 		_day -= day;
 		return *this;
 	}
-	Date operator-(int day)    //复用实现
+	Date operator-(int day) const   //复用实现
 	{
 		Date ret = *this;
 		ret -= day;
