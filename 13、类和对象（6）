@@ -1,0 +1,60 @@
+#include<iostream>
+using namespace std;
+
+//传参的时候，传引用尽量加上const，防止被改变
+//自定义类，C++没办法作比较，而自己定义大小关系写出的函数可不行不高，C++为了增强可读性，引入了运算符重载。
+class Date
+{
+public:
+	Date(int year = 0, int month = 1, int day = 1)
+	{
+		_year = year;
+		_month = month;
+		_day = day;
+
+	}
+	//d1 == d2;  ->  d1.operator==(&d1,d2);      &d1传给this指针，d2传给d
+	bool operator==(const Date& d)     //隐含的this指针  (Date* this, const Date& d)
+	{
+		return this->_year == d._year
+			&& _month == d._month
+			&& _day == d._day;
+	}
+	bool operator>(const Date& d)
+	{
+		if (_year > d._year)
+		{
+			return true;
+		}
+		else if (_year == d._year && _month > d._month)
+		{
+			return true;
+		}
+		else if(_year == d._year && _month == d._month && _day > d._day)
+		{
+			return true;
+		}
+		return false;
+	}
+private:
+	int _year;
+	int _month;
+	int _day;
+};
+
+//在外面调用得删掉private
+
+
+int main()
+{
+	Date d1(2025, 4, 19);
+	Date d2(2025, 4, 19);
+	d1 == d2;           //编译器会转换成operator==(d1,d2)  函数名为operator==
+	d1.operator==(d2); //一般不这样写，可读性不好
+
+	return 0;
+}
+
+//运算符重载特点：1、符号必须是C++有的，如operator@，这样的不行
+//				2、必须有自定义类型（类类型或枚举类型）做操作数
+//				3、不能对内置类型重载，.*(.*不能重载，*可以)   ：：   sizeof   ？：   .这五个类型不能重载
