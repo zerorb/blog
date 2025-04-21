@@ -1,0 +1,55 @@
+#include<iostream>
+using namespace std;
+
+//static静态成员
+//设计一个类A，计算总计产生了多少对象
+//对象存在栈区，static存在静态区（数据段）了，只是它受到了类域的限制,为了可以封装，解决不能随便改的问题	
+
+class A
+{
+public:
+	A()
+	{
+		n++;
+	}
+	A(const A& a)
+	{
+		n++;
+	}
+	static int GetN()		//静态成员函数，没有this指针，函数中不能访问非静态成员
+	{
+		//_a = 10;		访问不了
+		return n;
+	}
+private:
+	int _a;
+	static int n;		//声明，不属于某个对象，属于这个类的所有对象
+};
+int A::n = 0;		//定义
+
+//A& func(A& a)
+A func(A a)
+{
+
+	return a;
+}
+int main()
+{
+	A a1;
+	A a2;
+
+	func(a1);		//谁都可以对n进行修改
+	func(a2);
+
+	cout << a1.GetN() << endl;
+	cout << a2.GetN() << endl;
+	cout << A::GetN() << endl;	//突破类域
+
+	//a1.n = 10;	n是私有的，不能随便改
+	//public下
+	//cout << a1.n << endl;
+	//cout << a2.n << endl;  //没有private时可以访问
+	//cout << A::n << endl; 
+	//cout << n << endl;
+	return 0;
+}
