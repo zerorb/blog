@@ -1,0 +1,36 @@
+#include<iostream>
+using namespace std;
+
+class Solution
+{
+public:
+	Solution()
+	{
+		cout << "Solution()" << endl;
+	}
+	int Sum_Solution(int n)
+	{
+		cout << "Sum_Solution" << endl;
+		return n;
+	}
+	~Solution()
+	{
+		cout << "~Solution()" << endl;
+	}
+private:
+	int _num;
+};
+
+int main()
+{
+	Solution s1;				//s1的生命周期在main()函数里
+	s1.Sum_Solution(10);
+	Solution();					//匿名对象
+	Solution().Sum_Solution(10);	//生命周期在这一行，只有这一行用，别人都不用才这样写
+	return 0;
+}
+
+//ctrl+c结束对话框
+//局部对象先析构，静态对象再析构，全局对象后析构；全局对象先构造，局部依次构造，静态对象走到了再构造
+
+//连续的拷贝构造会被编译器优化成一次拷贝构造，优化都发生在返回和传参时
