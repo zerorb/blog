@@ -1,0 +1,122 @@
+#include<iostream>
+using namespace std;
+
+//初始化列表的三种情况，声明和定义的顺序
+//隐式类型的转换
+
+class T
+{
+public:
+	T(int x)
+	{
+		cout << "Time()" << endl;
+	}
+private:
+	int _hour;
+	int _minute;
+	int _second;
+};
+
+class Date
+{
+public:
+	/*Date(int year = 0, int month = 1, int day = 1)
+	{
+		//函数体内赋值
+		_year = year;
+		_month = month;
+		_day = day;
+	}
+	*/
+	
+	//加了explicit就不能隐式类型的转换了
+	//explicit Datte(...)
+	Date(int year = 0, int month = 1, int day = 1)
+		: _year(year)
+		, _month(month)
+		, _day(day)
+		,_t(1)		//这里即便不写，他还是会默认调用,但T类需要传参时，不写编不过
+	{
+		//初始化列表,其中引用成员和const成员必须在初始化列表初始化
+		//_t(1)     这个写在里面不行
+		/*
+		T t1(1);	想定义在里面除非这么写，很麻烦，不如写在外面
+		_t = t1;
+		*/
+	}
+private:
+	int _year;
+	int _month;
+	int _day;
+
+	T _t;
+};
+
+class A
+{
+public:
+	A(int a)
+		:_a(a)
+	{}
+private:
+	int _a;
+};
+class B
+{
+public:
+	//初始化列表是对象的成员变量定义的地方
+	B(int a, int ref)
+		:_aobj(1)		//他必须在调用构造函数的时候初始化，因为它没有默认的构造函数
+		, _ref(ref)    //都不能写在函数内
+		, _n(10)		//他们都需要在定义的时候初始化
+	{}
+private:
+	A _aobj;     //没有默认构造函数（不用传参就可以调用的那个构造函数）  ，即没有无参的构造函数
+				//如果给个全缺省的就可以调得动，就不需要在定义的时候初始化了 
+	int& _ref;		//引用
+	const int _n;	//const
+	//这里是成员变量的声明
+};
+
+class C
+{
+public:
+	C(int c)
+		:_c1(c)
+		,_c2(_c1)    
+	{}
+	void Print()
+	{
+		cout << _c1 << " " << _c2 << endl;
+	}
+private:
+	int _c2;		//谁先声明谁先定义，并不按初始化列表顺序来
+	int _c1;
+};
+
+int main()
+{
+	Date d1(1);			//构造
+
+	//C++98可以定义这种单参数的
+	Date d2 = 2;		//隐式类型的转换，先构造tmp(2)+拷贝构造Date d2(tmp)+优化成直接构造
+	//const Date& d2 = 2;    这里面就没有优化了，引用了中间产生的临时变量
+
+	//C++11可以定义多参数的
+	Date d4 = { 1,2,3 };
+
+	Date d3(d1);		//拷贝构造
+
+/*	int i = 1;
+	double d1 = i;			//隐式类型的转换，会产生一个临时变量，具有常性
+	const double& d2 = i;	
+*/
+	B b(1,2);		//这里是对象定义的地方
+
+	C cc(1);
+	cc.Print();		//这里返回1（_c1(c)），随机值(_c2(_c1))
+
+
+
+	return 0;
+}
