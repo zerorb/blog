@@ -1,0 +1,180 @@
+#include<iostream>
+using namespace std;
+
+
+//初始化列表是对成员变量的定义，主函数里是对象的定义，尽量使用初始化列表
+//explicit 构造函数    防止隐式类型转换
+//static成员：
+//1、static成员变量不存在对象中，存在静态区，它属于类的所有对象，也属于这个类
+//2、static成员函数没有this指针，不使用对象就可以调用，类名：：func就可以调用 
+
+//静态成员函数不能访问非静态成员（变量+函数），它没有this指针
+//非静态成员函数可以访问静态，突破类域+访问限定符就可以访问，类里面不受访问限定符限制
+//突破类域有两种方式，对象.（d1.f()）   Date::f()     ::域作用限定符
+//编译可以知道去哪里找，访问限定符可以知道能否访问
+
+
+
+
+//类域练习
+//要求实现1+2+3+...+n
+//不能用分支，条件判断，循环，递归，乘除法，等差数列。。。
+//要求用类+构造函数+static成员实现
+
+class Sum
+{
+public:
+	static void Init()		//不初始化,多次调用时会累加
+	{
+		_i = 1;
+		_sum = 0;
+	}
+	Sum()
+	{
+		_sum += _i;
+		_i++;
+	}
+	static int GetSum()
+	{
+		return _sum;
+	}
+private:
+	static int _i;
+	static int _sum;
+};
+int Sum::_i = 1;		//这里是定义+初始化，静态变量只能在类外面初始化
+int Sum::_sum = 0;		//可以认为类内静态变量就是全局变量，只不过加了类的限制 
+
+class Solution
+{
+public:
+	int Sum_Soluton(int n)
+	{
+		Sum::Init();
+		//Sum a[n];		//C99支持变长数组，但这里不支持
+		Sum* p = new Sum[n];		//动态开辟一个数组 
+		return Sum::GetSum();
+	}
+};
+
+
+
+
+
+//友元:友元函数和友元类
+//内部类，C++用的少，Java用的多，把类定义到另一个类里面，内部类天生就是外部类的友元
+class A
+{
+public:
+	class B
+	{
+	public:
+		B(int n)
+
+	};
+};
+class Time
+{
+	friend class Date;
+public:
+	Time(int hour = 0, int minute = 0, int second = 0)
+		:_hour(hour)
+		, _minute(minute)
+		, _second(second)
+	{
+
+	}
+private:
+	int _hour;
+	int _minute;
+	int _second;
+};
+class Date
+{
+	friend void f(Date& d);		//friend+函数声明，想从类外部访问成员函数
+	friend ostream& operator<<(ostream& out, const Date& d);
+	friend istream& operator >> (istream& in, Date& d);
+public:
+	Date(int year = 0,int month = 1,int day = 1)
+		:_year(year)
+		,_month(month)
+		,_day(day) 
+	{
+		//cout << "Date()" << endl;
+		_t._hour = 1;
+	}
+	void SetTimeOfDate(int hour, int minute, int second)
+	{
+		//直接访问时间类私有变量
+		_t._hour = hour;
+		_t._minute = minute;
+		_t._second = second;
+	}
+	void Print()
+	{
+		cout << _year << " " << _month << " " << _day << endl;
+	}
+/*	
+	void operator<<(ostream& out)		//d传给this，cout传给out
+	{
+		out << _year << "/" << _month << "/" << _day << endl;
+	}
+*/
+private:
+	//C++11支持，声明时给缺省值 （只有定义时才能叫初始化）
+	int _year = 0;		
+	int _month = 1;
+	int _day = 1;
+
+	Time _t;
+
+	static int n;		//静态的不能给缺省值，只能在类外定义
+};
+int Date::n = 1;
+
+void f(Date& d)		//一般函数可以直接放在类里面，没必要用友元
+{
+	d._year = 10;
+	cout << d._year << endl;
+}
+
+ostream& operator<<(ostream& out, const Date& d)	//但cout<<d1<<endl;不行，不能连续输出
+{
+	out << d._year << "/" << d._month << "/" << d._day << endl;
+	return out;
+}
+istream& operator >> (istream& in,Date& d)
+{
+	in >> d._year >>d._month >>d._day;
+	return in;
+}
+int main()
+{
+	Solution s;
+	cout << s.Sum_Soluton(5) << endl;//15
+	cout << s.Sum_Soluton(5) << endl;//55
+
+	//Date d1[10];		//如果创建的是数组，每一个数组元素都需要调用一次构造函数
+	Date d1;
+	Date d2(2025,4,21);
+	d1.Print();
+	f(d1);
+
+	//d1 << cout;		//d1.operator<<(cout)		这样调才能用，但没有可读性
+					//this和out位置冲突了
+	cout << d1 << d2;		//这里输出运算符只能输出内置类型，要运算符重载，在类内要用友元才能调用
+	cin >> d1 >> d2;
+	cout << d1 << d2;
+	
+	A::B b1();		//内部类定义
+
+	return 0;
+}
+
+//cout是std库里面的一个ostream类型的全局对象，<<只是C++支持的一种运算符
+//cin和cout能自动识别类型是因为库里面做了函数重载
+
+//封装：
+//面向对象更好的模拟描述这个世界
+//实际写项目，本质上就是模拟这个世界的运转
+//面向对象更关注的是类和类的关系，工程上要求低耦合高内聚，所以用封装
