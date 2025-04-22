@@ -1,0 +1,125 @@
+#include<iostream>
+using namespace std;
+
+
+//malloc和new的区别
+//1、malloc开空间	new开空间+构造函数+失败抛异常
+//2、malloc是函数	new是操作符
+//3、malloc参数传字节数，返回值是void*		new后跟申请对象的类型，返回值是类型的指针
+
+
+//c++独有的问题，内存泄漏。Java会轻松很多，因为Java有垃圾回收器 new了对象不用释放
+
+
+//泛型编程 ：代码复用
+//模板：写跟类型无关的代码
+template<class T>
+//template<typename T>		这个一样
+void Swap(T& x, T& y)		//模板参数
+{
+	T tmp = x;
+	x = y;
+	y = tmp;
+}
+//调用的并不是同一个函数，上面并不是函数，他是一个模板
+//编译器会对模板进行推演，来实例化生成对应类型函数（预处理阶段）
+//编译时不会编译它，即便它写错了，只要不调用也不会出错
+
+
+
+//C语言实现栈
+	 //C语言弊端
+	 //1、忘记初始化和销毁							//构造和析构
+	 //2、没有封装，谁都可以改结构体数据				//类+访问限定符
+	 //3、如果想定义两个栈，一个存int一个存double，做不到		//泛型编程,模板
+typedef int STDateType;		//这里方便改类型
+struct Stack_c
+{
+	int* _a;
+	int _size;	//_top
+	int _capacity;
+};
+typedef struct Stack_c Stack_c;	//这里为了好写，命名成Stack
+
+void Stack_CInit(Stack_c* ps);
+void Stack_CDestory(Stack_c* ps);
+void Stack_CPush(Stack_c* ps, STDateType x);
+void Stack_CPop(Stack_c* ps);
+
+
+//C++实现栈
+template<class T>
+class Stack_CPP
+{
+public:
+	Stack_CPP()
+	{
+
+	}
+	~Stack_CPP()
+	{
+
+	}
+	void Push(T x)
+	{
+
+	}
+private:
+	STDateType* _a;
+	int _size;
+	int _capacity;
+};
+
+
+int main()
+{
+	//1G
+	//char* p1 = new char[1024 * 1024 * 1024];
+
+	//内存泄露：p1指向的空间，忘记或其他原因释放p的空间，导致进程或系统越来越慢
+	//当进程结束，没有释放的资源系统会自动回收
+	//内存泄漏的危害：长期运行的程序(游戏服务)或设备内存本身很小，危害很大
+	//解决方法：采用RA2思想或智能指针来管理资源
+
+	//如何申请出更大的空间：把32位(4G)改成64位(160G)	（虚拟空间）让进程地址空间变大就行了
+	size_t size = 2;
+	try
+	{
+		void* p2 = new char[size * 1024 * 1024 * 1024];
+		cout << "new" << p2 << endl;
+	}
+	catch (exception& e)
+	{
+		cout << e.what() << endl;
+	}
+
+
+
+	int a1 = 1, b1 = 2;
+	Swap(a1, b1);
+	double d1 = 1.11, d2 = 2.22;
+	Swap(d1, d2);
+	char c1 = 'abcd', c2 = 'efgh';
+	Swap(c1, c2);
+
+
+	
+	Stack_c st_c;
+	Stack_CInit(&st_c);
+	Stack_CPush(&st_c, 1);
+	Stack_CDestory(&st_c);
+	//非法修改
+	st_c._capacity = 0;
+
+	Stack_CPP<int> st_cpp_int;
+	st_cpp_int.Push(1);
+
+	Stack_CPP<double> st_cpp_double;
+	st_cpp_double.Push(1.11);
+
+	return 0;
+}
+
+
+
+
