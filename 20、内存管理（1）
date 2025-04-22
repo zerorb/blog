@@ -1,0 +1,99 @@
+#include<iostream>
+using namespace std;
+
+
+
+//内存管理
+//临时对象放栈里，动态开辟的放堆里，全局数据静态数据放数据段，可执行代码只读常量放代码段
+//共享内存才会在共享区，平常的变量不会在共享区
+//从C语言的角度可将数据段分为初始化区和未初始化区，代码段又叫常量区
+//线程里面的页表并不在共享区，涉及到拷贝页表
+
+
+//问：下面变量都在，A栈，B堆，C数据段，D代码段，哪里？
+//glovalVal,staticGlovbalVal,localVal,char2,*char2,p3char,*pchar3,ptr1,ptr2,ptr3
+
+/*
+int globalVal = 1;					//C		全局变量		main函数前就初始化，
+static int staticGlobaVal = 1;		//C		全局变量		作用域是全局的
+									//这两个区别，链接属性不同，
+									//globalVal所有文件可见，staticGlobaVal只在当前文件可见
+void Test()
+{
+	static int staticVar = 1;		//C		局部变量		运行到这里再初始化
+									//作用域Test函数中，只能在Test函数中使用，生命周期全局
+	int localVar = 1;				//A		局部变量
+
+	int num[10] = { 1,2,3,4 };		//A
+	char char2[] = "abcd";			//A		局部数组在栈上
+									//*char2还是在栈上，地址取的数组首元素
+	char* pchar3 = "abcd";			//pchar3在栈上，*pchar3在代码段，因为字符串是常量 
+	int* ptr1 = (int*)malloc(sizeof(int) * 4);		//ptr在栈上，*ptr在堆中
+	int* ptr2 = (int*)calloc(4, sizeof(int) * 4);
+	int* ptr3 = (int*)realloc(ptr2, sizeof(int) * 4);
+	free(ptr1);
+	free(ptr3);
+}
+*/
+
+
+//C语言中malloc、calloc、realloc，都是向堆申请空间，区别是什么
+//malloc：申请空间
+//calloc：申请空间+初始化成0
+//realloc：对原有空间扩容 
+
+//C语言的malloc和free和C++的new和delete区别
+//内置类型无差别，自定义类型C++会构造和析构
+
+class A
+{
+public:
+	A()
+		:_a(0)
+	{
+		cout << "A()" << endl;
+	}
+	~A()
+	{
+		cout << "~A()" << endl;
+	}
+private:
+	int _a;
+};
+
+
+int main()
+{
+	//C	函数
+	int* p1 = (int*)malloc(sizeof(int));		//malloc返回类型是void*
+	int* p3 = (int*)malloc(sizeof(int) * 10);
+	free(p1);
+	free(p3);
+
+	//C++	操作符
+	int* p2 = new int(10);		//申请一个int的4字节空间，赋值成10
+	int* p4 = new int[10];		//申请10个int40的字节的空间
+	delete (p2);
+	delete[] p4;
+
+	A* p5 = (A*)malloc(sizeof(A));		//申请空间
+	A* p6 = new A;						//申请空间+构造函数初始化
+	free(p5);							//释放空间
+	delete(p6);							//析构+释放空间
+	return 0;
+}
+
+
+//操作系统内存管理：
+// 1、分段			《深入了解计算机系统》->虚拟存储器章节
+// 2、分页
+//内核空间（用户代码不能读写）
+//栈（自上向下）
+//内存映射段（文件映射、动态库、匿名映射）
+//堆（自下向上）
+//数据段（全局数据、静态数据）
+//代码段（可执行代码、只读常量）
+
+
+//C++学习入门不推荐看书，进阶看高质量C++源码剖析，efficient C++primer不适合入门
+//更推荐刷题和写博客
