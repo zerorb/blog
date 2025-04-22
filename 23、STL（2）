@@ -1,0 +1,107 @@
+#include<iostream>
+#include<assert.h>
+using namespace std;
+
+
+template<class T>
+class vector	//vector管理的是动态增长的数组
+{
+public:
+	vector()			//初始化不给空间
+		:_a(nullptr)
+		,_size(0)
+		,_capacity(0)
+	{}
+	vector(size_t n)	//初始化就写进去一些数组
+		:_a(new T[n])
+		,_size(n)
+		,_capacity(n)
+	{}
+	~vector()
+	{
+		delete[] _a;
+		_a = nullptr;
+		_size = _capacity = 0;
+	}
+	void Push_back(const T& x);	//类里面声明
+	void Pop_back();
+
+	size_t size()
+	{
+		return _size;
+	}
+	T& operator[](size_t i)		//若这里传值，返回临时变量，具有常性，就不能写进去
+	{
+		assert(i < _size);		//数组内的数据要小于数组大小
+		return _a[i];
+	}
+private:
+	T* _a;
+	size_t _size;
+	size_t _capacity;
+};
+//类外面定义
+template<class T>
+void vector<T>::Push_back(const T& x)		//类型是vector<T>
+{
+	//如果空间不够，要进行增容
+	if (_size == _capacity)
+	{
+		size_t newcapacity = _capacity == 0 ? 2 : _capacity * 2;
+		T* tmp = new T[newcapacity];
+		if (_a)
+		{
+			memcpy(tmp, _a, sizeof(T) * _size);
+			delete[] _a;
+		}
+		_a = tmp;
+		_capacity = newcapacity;
+	}
+	_a[_size] = x;
+	++_size;
+}
+template<class T>
+void vector<T>::Pop_back()
+{
+	assert(_size > 0);
+	--_size;
+}
+
+template<class T>
+T ADD(const T& left, const T& right)
+{
+	return left + right;
+}
+
+int main()
+{
+	vector<int> v;	//类型是vector<T>
+	v.Push_back(1);
+	v.Push_back(2);
+	v.Push_back(3);
+	for (size_t i = 0; i < v.size(); i++)
+	{
+		//写
+		v[i] *= 2;
+	}
+	for (size_t i = 0; i < v.size(); ++i)
+	{
+		//读
+		cout << v[i] << " ";
+	}
+	cout << endl;
+
+
+	int a1 = 1, a2 = 2;
+	double d1 = 11.0, d2 = 22.0;
+	//隐式实例化（T的类型是编译器自己推导的）
+	ADD(a1, a2);
+	ADD(d1, d2);
+
+	ADD(a1, (int)d1);		//直接强转
+	//显式实例化		指定T为int，d1传过去后是隐式类型的转换
+	ADD<int>(a1, d1);
+	return 0;
+}
+
+
