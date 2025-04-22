@@ -1,0 +1,128 @@
+#include<iostream>
+using namespace std;
+
+
+
+//定制专属的operator new，自己在类里写一个operator new的重载函数，开一个内存池，申请内存池的空间
+//这个在以后写列表的时候会用到
+
+
+
+
+//c语言中链表
+struct ListNode_c		//声明
+{
+	int _val;
+	struct ListNode_c* _next;		//C语言这里必须加struct，因为typedef在后面才定义
+	struct ListNode_c* _prev;
+};
+typedef struct ListNode_c;		//重命名
+ListNode_c* BuyListNode(int val)	//定义
+{
+	//struct ListNode* node_c = (struct ListNode*)malloc(sizeof(struct ListNode));
+	ListNode_c* node_c = (ListNode_c*)malloc(sizeof(ListNode_c));		//初始化
+	node_c->_val = 1;
+	node_c->_next = NULL;
+	node_c->_prev = NULL;
+
+	return node_c;
+}
+
+struct ListNode_cpp
+{
+	int _val;
+	struct ListNode_cpp* _next;		//C++兼容C
+	ListNode_cpp* _prev;				//C++认为struct是类，类名可直接作为类型使用
+									//和class区别是，默认访问限定符是公有的
+	ListNode_cpp(int val = 0)
+		:_val(val)
+		,_next(nullptr)
+		,_prev(nullptr)
+	{
+
+	}
+};
+
+class A
+{
+public:
+	A(int a = 0)
+		:_a(a)
+	{
+		cout << "A()" << endl;
+	}
+	~A()
+	{
+		cout << "~A()" << endl;
+	}
+private:
+	int _a;
+};
+
+
+
+int main()
+{
+	ListNode_c* node1 = BuyListNode(1);
+	ListNode_cpp* node2 = new ListNode_cpp;		//自定义类型调用构造函数时，要用初始化列表
+	ListNode_cpp* node3 = new ListNode_cpp();	//即便不写，还是会默认构造函数初始化
+	delete node2;
+	delete node3;		//这里面会调析构函数，但没有指针，没什么需要清理的
+
+
+
+	A* a2 = new(A);
+	A* a1 = (A*)malloc(sizeof(A));
+	A* a3 = (A*)operator new(sizeof(A));
+	//operator new和malloc的区别：在于向堆区申请空间失败抛异常
+	//申请失败有两种情况：1、堆区总被申请，没空间了。2、一次性申请很大，还是没空间了
+	size_t size = 2;		//这是无符号的
+	void* p1 = malloc(size * 1024 * 1024 * 1024);		//无符号会大一些
+	cout << p1 << endl;		//申请失败，返回00000000
+	try
+	{
+		void* p2 = operator new(size * 1024 * 1024 * 1024);
+		cout << p2 << endl;		//失败抛异常（面向对象处理错误的一种方式）
+	}
+	catch (exception& e)
+	{
+		cout << e.what() << endl;		
+	}
+
+
+	A* p4 = new A;
+	delete(p4);
+
+	//想模拟上面的行为（若空间是向内存池申请的）
+						//（也就是重载了operator new，开空间时会向特定区域申请）
+	A* p5 = (A*)operator new(sizeof(A));
+	//为了实现new调用构造函数的功能
+	// 定位new
+	//对已经存在的一块空间调用构造函数初始化，定位new/replacement new
+	new(p5)A(10);		//显式的调用构造函数		new(空间的指针)构造函数
+
+	//显式的调析构函数
+	p5->~A();
+	operator delete(p5);
+	return 0;
+}
+
+
+//一个进程会有多个线程，每个线程会有独立的栈帧，栈和数据段等都不大，大概8~10M，真正大的是堆
+//总体上看，Java语法比C++简单一些，但Java的库和框架更难，总体上大同小异
+//operator new == malloc+失败抛异常
+//new == operator new+构造函数
+
+//new：1、调用构造函数 2、失败抛异常
+//delete：1、调用析构函数（所以和operator delete没区别，只是为了成对出现）2、失败直接终止进程
+
+//delete调的是free _dbg		free调的也是free _dbg
+
+
+
+
+//调试：
+//visual studio中，快速选择同名变量ctrl+shift+L,快速替换同名变量ctrl+r,ctrl+r,两遍
+// 调试：逐过程F10，逐语句F11，断点F9，调试F5，shift+F5取消调试
+// (断点和调试一起使用，断点就是直接走到那一行，其他的不管)
+//调试时可添加要监视的对象
