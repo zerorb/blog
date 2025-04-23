@@ -1,0 +1,267 @@
+#include<iostream>
+#include<string>
+#include<vector>
+#include<list>
+using namespace std;
+
+//string和vector可以用[]，但list，map等只能用迭代器
+
+
+//字符串转整形
+
+void test_string2int(string s)
+{
+	int val = 0;
+	for (int i = 0; i < s.size(); ++i)
+	{
+		val *= 10;
+		val += (s[i] - '0');
+	}
+	cout << val << endl;
+
+}
+/*
+int string2int(string str)
+{
+	int val = 0;
+	string::iterator it = str.begin();
+	while (it != str.end())
+	{
+		val *= 10;
+		val += (*it - '0');
+		++it;
+	}
+	return val;
+}
+*/
+
+//迭代器：共四种		正向和反向，普通和const,
+//反向迭代器
+void test_string3()
+{
+	string s1("hello world");
+	//倒着遍历
+	//string::reverse_iterator rit = s1.rbegin();
+	auto rit = s1.rbegin();
+	while (rit != s1.rend())
+	{
+		cout << *rit << " ";
+		++rit;
+	}
+}
+
+//const迭代器
+int string2int(const string& str)
+{
+	int val = 0;
+	string::const_iterator it = str.begin();
+	while (it != str.end())
+	{
+		//const迭代器只能读不能写，*it不能变
+		val *= 10;;
+		val += (*it - '0');
+		++it;
+	}
+
+//反向const迭代器
+	val = 0;
+	string::const_reverse_iterator rit = str.rbegin();
+	while (rit != str.rend())
+	{
+		val *= 10;
+		val += (*rit - '0');
+		++rit;
+	}
+
+
+	return val;
+}
+
+
+//遍历
+void test_string2()
+{
+	string ss1("hello");
+	ss1 += " ";
+	ss1 += "world";
+	cout << ss1 << endl;
+
+	//[]+下标			平时推荐用这个,偶尔范围for，迭代器多，不好写
+	for (int i = 0; i < ss1.size(); ++i)	//写
+	{
+		ss1[i] += 1;
+	}
+	for (int i = 0; i < ss1.size(); ++i)	//读
+	{
+		cout << ss1[i] << " ";
+	}
+	cout << endl;
+	
+	//迭代器
+	//迭代器不一定是指针，像指针一样的东西
+	//begin()指向开始位置，end()指向最后一个字符的后一个位置（\0）
+	//string::iterator it = ss1.begin();	//写
+	auto it = ss1.begin();		
+	while (it != ss1.end())
+	{
+		*it -= 1;
+		++it;
+	}
+	it = ss1.begin();	//读
+	while (it != ss1.end())
+	{
+		cout << *it << " ";
+		++it;
+	}
+	cout << endl; 
+	//范围for
+	//C++11原理迭代器
+	for (auto ch : ss1)		//(auto 名字(随便) ：容器对象),自动把ss1给ch，自动++
+	{
+		cout << ch << " ";
+	}
+	cout << endl; 
+
+
+	
+
+
+/*
+	vector<int> v;
+	v.push_back(1);
+	v.push_back(2);
+	v.push_back(3);
+	vector<int>::iterator vit = v.begin();
+	while (vit != v.end())
+	{
+		cout << *vit << " ";
+		++vit;
+	}
+	cout << endl;
+
+	list<int> l;
+	l.push_back(1);
+	l.push_back(2);
+	l.push_back(3);
+	list<int>::iterator lit = l.begin();
+	while (lit != l.end())
+	{
+		cout << *lit << " ";
+		++lit;
+	}
+	cout << endl;
+*/
+}
+
+void test_string4()
+{
+	string s1("hello world");
+	string s2("hello");
+	cout << s1.size() << endl;
+	cout << s2.size() << endl;
+	cout << s1.length() << endl;		//length是早期C++,后面不支持list等，不推荐使用
+	cout << s2.length() << endl;
+
+	cout << s1.max_size() << endl;
+	cout << s2.max_size() << endl;
+	cout << s1.capacity() << endl;
+	cout << s2.capacity() << endl;
+
+	s1 += "1111111";
+	cout << s1.capacity() << endl;
+	s1.clear();		//把size减到0了，但是capacity没变
+	cout << s1 << endl;
+	cout << s1.capacity() << endl;
+}
+
+void test_string5()		//观察string空间增长
+{
+	string s;
+	s.reserve(100);		//直接开大于100个空间，就观察不到增长，但有内存对齐，不一定是100
+	//s.resize(100,'x');		//不光capacity开到100，size也到100了,且默认赋值x
+	size_t sz = s.capacity();
+	cout << "making s grow:\n";
+	for (int i = 0; i < 100;++i)
+	{
+		s.push_back('c');
+		if (sz != s.capacity())
+		{
+			sz = s.capacity();
+			cout << "capacity changed:" << sz << endl;	//打印出来的会少一个，
+			//系统会多开一个空间给\0
+		}
+
+	}
+	string s1("hello world");
+	s1.resize(5);		//他将空间缩小至5，只剩hello
+	s1.resize(20);		//他将空间扩容至20，hello后默认给\0
+	cout << s1 << endl;
+}
+
+//找到s中出现的第一个唯一字符
+class Solution
+{
+public:
+	int FirstUniaChar(string s)
+	{
+		int count[26] = { 0 };
+		for (auto ch : s)
+		{
+			count[ch - 'a']++;		//让s的每一个字符都-a，得到一个数字
+					//这个数字就是count的下标，然后让该下标的字符+1（初始所有下标的值都为0）
+		}
+		for (int i = 0; i < s.size(); ++i)
+		{
+			if (count[s[i] - 'a'] == 1)		//如果=1说明该下标位置只被加过一次，即指出现了1次
+				return i;
+		}
+		return -1;
+	}
+
+};
+
+int main()
+{
+	
+	string s1;
+	std::string s2("hello");
+	string s3(s2);			//拷贝构造
+	string s4(10, 'a');
+	string s5 = "12345";	//将12345拷贝给临时变量，将临时变量拷贝构造给s5，优化成一次拷贝
+	string s6 = s2;			//拷贝构造
+	string s7;
+	s7 = s2;				//赋值	
+
+/*
+	cout << s1 << endl;
+	cout << s2 << endl;
+	cout << s3 << endl;
+	cout << s4 << endl;
+	cout << s5 << endl;
+	cout << s6 << endl;
+*/	
+
+	string s("12345");
+	s.push_back('6');	//插入一个字符
+	s.append("78");		//插入一个字符串
+	s += "90";			//插入字符或字符串		尾插，推荐+=
+	//+=：可以加字符，字符串，对象（s1+=s2）
+	s.insert(s.begin(), '0');					//头插
+	cout << s << endl;
+	s.erase(2, 3);
+	cout << s << endl;
+
+	
+	test_string2();
+	test_string3();
+	
+	string nums("12345");
+	cout << string2int(nums) << endl;
+	test_string2int(s);
+
+	test_string4();
+	test_string5();
+	return 0;
+}
+
+
