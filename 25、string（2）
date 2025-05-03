@@ -1,0 +1,142 @@
+#include<iostream>
+#include<string>
+//#include<vector>
+//#include<list>
+using namespace std;
+
+
+//复习三种遍历方式，并用C语言形式返回数组
+void func()
+{
+	string s1 = "hello";
+	s1 += " ";
+	s1 += "world";
+
+	//三种遍历方式
+	for (int i = 0; i < s1.size(); ++i)
+	{
+		cout << s1[i] << " ";
+	}
+	cout << endl;
+
+	string::iterator it1 = s1.begin();
+	while (it1 != s1.end())
+	{
+		cout << *it1 << " ";
+		++it1;
+	}
+	cout << endl;
+
+	for (auto e : s1)
+	{
+		cout << e << " ";
+	}
+	cout << endl;
+
+	//获取字符数组首地址，用C语言形式遍历
+	const char* str = s1.c_str();		//c_str  用C语言形式返回数组
+	while (*str)						//指针指向\0时停止
+	{
+		cout << *str << " ";
+		++str;
+	}
+	cout << endl;
+
+	cout << s1 << endl;				//相当于重载operator<<
+	cout << s1.c_str() << endl;		//直接输出const chat*
+	//区别
+	s1 += "\0";
+	s1 += "world";
+	cout << s1 << endl;		//hello world world
+	cout << s1.c_str();		//hello world
+
+	//ascii码表		值和字母标点等映射关系
+	//死循环		范围for
+	//for (unsigned char ch = 0; ch < 255; ++ch)
+	//{
+	//	cout << ch << " ";
+	//}
+	//cout << endl;
+
+	//unicode		linux utf8		windows	gbk
+	char st1[] = "中国";
+	cout << st1 << endl;
+	st1[3] = -7;
+	cout << st1 << endl;
+	st1[3] = -8;
+	cout << st1 << endl;
+	st1[3] = -9;
+	cout << st1 << endl;
+}
+
+//find  substr  函数的用法
+void test_string1()
+{
+	string s1("string.c");
+	string s2("string.cpp");
+	string s3("string.txt");				//.tar.zip		打包+压缩
+
+	size_t pos1 = s1.rfind('.');				//从第n个位置找字符
+	if (pos1 != string::npos)
+	{
+		cout << s1.substr(pos1) << endl;	//从第n个位置找字串
+	}
+	size_t pos2 = s2.find('.');
+	if (pos2 != string::npos)
+	{
+		cout << s2.substr(pos2) << endl;
+	}
+	size_t pos3 = s3.find('.');
+	if (pos3 != string::npos)
+	{
+		cout << s3.substr(pos3) << endl;
+	}
+
+
+}
+
+//分离网址
+void split_url(const string& url)
+{
+
+	size_t i1 = url.find(':');		//find返回的是找到的第一个字符的位置
+	if (i1 != string::npos)
+	{
+		cout << url.substr(0, i1) << endl;		//从0位置取到i1下标位置长度
+	}
+	size_t i2 = url.find('/', i1 + 3);			//从i1+3开始找，返回第一个'/'的位置
+	if (i2 != string::npos)
+	{
+		cout << url.substr(i1 + 3,i2-(i1+3)) << endl;
+	}
+	cout << url.substr(i2+1) << endl;
+
+}
+
+void test_string2()
+{
+	//+不常用，+=常用， +效率低
+	string s1 = "hello";
+	string ret1 = s1 + "world";			//+返回string
+	string ret2 = s1 += "world";		//+=返回string&
+	cout << ret1 << endl << ret2 << endl;
+}
+
+int main()
+{
+	//func();
+	test_string1();
+	test_string2();
+
+	//网址	协议(https)		域名(ip)		资源名称(reference/string)
+	string url("https://www.cplusplus.com/reference/string/string/substr");
+	split_url(url);
+
+	string s1;
+	cin >> s1;				//cin遇到空格或换行结束，输入带空格单词用getline
+	getline(cin, s1);		//getline换行才结束
+	return 0;
+}
+
+//npos返回的是-1，类型是unsize int，即整形最大值
+//+=是尾插，insert是头插
